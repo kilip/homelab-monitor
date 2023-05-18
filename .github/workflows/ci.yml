@@ -41,8 +41,13 @@ jobs:
         with:
           push: false
           load: true
-          cache-from: type=gha
-          cache-to: type=gha
+          set: |
+            api.cache-from=type=gha
+            api.cache-to=type=gha
+            caddy.cache-from=type=gha
+            caddy.cache-to=type=gha
+            pwa.cache-from=type=gha
+            pwa.cache-to=type=gha
       
       - name: Pull images
         run: docker compose pull --ignore-pull-failures || true
