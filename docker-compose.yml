@@ -1,9 +1,9 @@
 version: "3.4"
 
 services:
-  php:
-    container_name: homelab-php
-    image: ghcr.io/kilip/homelab-php
+  api:
+    container_name: homelab-api
+    image: ghcr.io/kilip/homelab-api
     build:
       context: ./api
       target: app_php

@@ -29,7 +29,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build container image for testing
+      - name: Build api image for testing
+        uses: docker/build-push-action@v4
+        with:
+          build-args: ./api
+            VERSION=testing
+            CHANNEL=testing
+          context: ./api
+          platforms: linux/amd64 # load does not support muti-arch https://github.com/docker/buildx/issues/290
+          target: app_php_dev
+          load: true
+          tags: ghcr.io/${{ github.repository_owner }}/homelab-api:testing
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build caddy image for testing
         uses: docker/build-push-action@v4
         with:
           build-args: ./api
@@ -37,8 +51,21 @@ jobs:
             CHANNEL=dev
           context: ./api
           platforms: linux/amd64 # load does not support muti-arch https://github.com/docker/buildx/issues/290
-          file: ${{ steps.vars.outputs.chan_dockerfile }}
+          target: app_caddy
           load: true
-          tags: ghcr.io/${{ github.repository_owner }}/homelab-api:testing
+          tags: ghcr.io/${{ github.repository_owner }}/homelab-caddy:testing
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build pwa image for testing
+        uses: docker/build-push-action@v4
+        with:
+          build-args: ./pwa
+            VERSION=dev
+            CHANNEL=dev
+          context: ./pwa
+          platforms: linux/amd64 # load does not support muti-arch https://github.com/docker/buildx/issues/290
+          load: true
+          tags: ghcr.io/${{ github.repository_owner }}/homelab-pwa:testing
           cache-from: type=gha
           cache-to: type=gha,mode=max
