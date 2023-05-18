@@ -41,9 +41,8 @@ jobs:
         with:
           push: false
           load: true
-          set: |
-            cache-from=type=gha
-            cache-to=type=gha
+          cache-from: type=gha
+          cache-to: type=gha
       
       - name: Pull images
         run: docker compose pull --ignore-pull-failures || true
