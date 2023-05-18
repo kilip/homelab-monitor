@@ -1,0 +1,12 @@
+version: "3.4"
+
+# Development environment override
+services:
+  api:
+    image: ghcr.io/kilip/homelab-api:testing
+
+  pwa:
+    image: ghcr.io/kilip/homelab-pwa:testing
+
+  caddy:
+    image: ghcr.io/kilip/homelab-caddy:testing

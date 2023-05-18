@@ -8,6 +8,13 @@ on:
   pull_request: ~
   workflow_dispatch: ~
 
+env:
+  API_PLATFORM_CREATE_CLIENT_ENTRYPOINT: http://caddy
+  API_PLATFORM_CREATE_CLIENT_OUTPUT: .
+  # On Linux, you may want to comment the following line for improved performance
+  WATCHPACK_POLLING: "true"
+
+
 jobs:
   build-and-test:
     name: Build and Test
