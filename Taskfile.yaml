@@ -1,0 +1,15 @@
+version: "3"
+
+tasks:
+  build:
+    cmds:
+      - docker compose build
+  up:
+    cmds:
+      - docker compose -f docker-compose.yml -f docker-compose.override.yml up -d
+  start:
+    cmds:
+      - docker compose -f docker-compose.yml -f docker-compose.override.yml start
+  stop:
+    cmds:
+      - docker compose -f docker-compose.yml -f docker-compose.override.yml stop
