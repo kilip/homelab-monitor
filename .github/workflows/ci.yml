@@ -37,12 +37,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build api image for testing
-        uses: docker/build-push-action@v4
+        uses: docker/bake-action@v3
         with:
           push: false
           load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          set: |
+            web.cache-from=type=gha
+            web.cache-to=type=gha
       
       - name: Pull images
         run: docker compose pull --ignore-pull-failures || true
