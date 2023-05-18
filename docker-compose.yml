@@ -41,7 +41,7 @@ services:
       context: api/
       target: app_caddy
     depends_on:
-      - php
+      - api
       - pwa
     environment:
       PWA_UPSTREAM: pwa:3000
