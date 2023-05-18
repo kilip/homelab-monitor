@@ -39,40 +39,53 @@ jobs:
       - name: Build api image for testing
         uses: docker/build-push-action@v4
         with:
-          build-args: ./api
-            VERSION=testing
-            CHANNEL=testing
-          context: ./api
-          platforms: linux/amd64 # load does not support muti-arch https://github.com/docker/buildx/issues/290
-          target: app_php_dev
+          push: false
           load: true
-          tags: ghcr.io/${{ github.repository_owner }}/homelab-api:testing
           cache-from: type=gha
           cache-to: type=gha,mode=max
+      
+      - name: Pull images
+        run: docker compose pull --ignore-pull-failures || true
 
-      - name: Build caddy image for testing
-        uses: docker/build-push-action@v4
-        with:
-          build-args: ./api
-            VERSION=dev
-            CHANNEL=dev
-          context: ./api
-          platforms: linux/amd64 # load does not support muti-arch https://github.com/docker/buildx/issues/290
-          target: app_caddy
-          load: true
-          tags: ghcr.io/${{ github.repository_owner }}/homelab-caddy:testing
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Start services
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.override.yml \
+            -f docker-compose.ci.yml \
+            up --build -d
 
-      - name: Build pwa image for testing
-        uses: docker/build-push-action@v4
-        with:
-          build-args: ./pwa
-            VERSION=dev
-            CHANNEL=dev
-          context: ./pwa
-          platforms: linux/amd64 # load does not support muti-arch https://github.com/docker/buildx/issues/290
-          load: true
-          tags: ghcr.io/${{ github.repository_owner }}/homelab-pwa:testing
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Wait for services
+        run: |
+          while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q php)")"; do
+            case $status in
+              starting) sleep 1;;
+              healthy) exit 0;;
+              unhealthy)
+                docker compose ps
+                docker compose logs
+                exit 1
+              ;;
+            esac
+          done
+          exit 1
+
+      - name: Check HTTP reachability
+        run: curl -v -o /dev/null http://localhost
+
+      - name: Check API reachability
+        run: curl -vk -o /dev/null https://localhost
+
+      - name: Check PWA reachability
+        run: "curl -vk -o /dev/null -H 'Accept: text/html' https://localhost"
+
+      - name: Create test database
+        run: |
+          docker compose exec -T php bin/console -e test doctrine:database:create
+          docker compose exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
+
+      - name: PHPUnit
+        run: docker compose exec -T php bin/phpunit
+
+      - name: Doctrine Schema Validator
+        run: docker compose exec -T php bin/console doctrine:schema:validate
