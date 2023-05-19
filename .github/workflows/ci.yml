@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-api:
-    uses: kilip/homelab-monitor/.github/workflows/image-build.yaml@dev
+    uses: kilip/homelab-monitor/.github/workflows/image-build.yml@dev
     with:
       image: "homelab-api"
       target: app_dev_php
