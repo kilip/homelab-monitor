@@ -27,7 +27,7 @@ jobs:
   build-caddy:
     uses: kilip/homelab-monitor/.github/workflows/image-build.yml@dev
     with:
-      image: "homelab-pwa"
+      image: "homelab-caddy"
       target: app_caddy
       context: "./api"
       pushImages: "true"
