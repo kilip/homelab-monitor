@@ -53,7 +53,7 @@ jobs:
 
       - name: Start services
         run: |
-          docker compose -f docker-compose.yml docker-compose.override.yml up --build -d
+          docker compose -f docker-compose.yml -f docker-compose.override.yml up --build -d
 
       - name: Wait for services
         run: |
