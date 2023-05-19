@@ -36,7 +36,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build api image for testing
+      - name: Setup Docker Bake Action
         uses: docker/bake-action@v3
         with:
           push: false
