@@ -1,0 +1,49 @@
+name: "Action: Build Image"
+
+on:
+  workflow_call:
+    inputs:
+      channel:
+        required: false
+        default: 'nightly'
+        type: string
+      version:
+        required: true
+        type: string
+
+jobs:
+  build-api:
+    uses: kilip/homelab-monitor/.github/workflows/image-build.yml@dev
+    with:
+      image: "homelab-api"
+      target: app_php_dev
+      context: "./api"
+      pushImages: "true"
+      channel: ${{ inputs.channel }}
+      updateMetadata: "true"
+      version: ${{ inputs.version }}
+    secrets: inherit
+
+  build-caddy:
+    uses: kilip/homelab-monitor/.github/workflows/image-build.yml@dev
+    with:
+      image: "homelab-pwa"
+      target: app_caddy
+      context: "./api"
+      pushImages: "true"
+      channel: ${{ inputs.channel }}
+      updateMetadata: "true"
+      version: ${{ inputs.version }}
+    secrets: inherit
+
+  build-pwa:
+    uses: kilip/homelab-monitor/.github/workflows/image-build.yml@dev
+    with:
+      image: "homelab-pwa"
+      target: dev
+      context: "./pwa"
+      pushImages: "true"
+      channel: ${{ inputs.channel }}
+      updateMetadata: "true"
+      version: ${{ inputs.version }}
+    secrets: inherit

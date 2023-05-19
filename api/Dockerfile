@@ -2,45 +2,7 @@
 # Adapted from https://github.com/dunglas/symfony-docker
 
 # Prod image
-FROM php:8.2-fpm-alpine AS app_php
-
-ENV APP_ENV=prod
-ENV PUID=1000
-ENV PGID=1000
-
-WORKDIR /srv/app
-
-# php extensions installer: https://github.com/mlocati/docker-php-extension-installer
-COPY --from=mlocati/php-extension-installer --link /usr/bin/install-php-extensions /usr/local/bin/
-
-# persistent / runtime deps
-RUN apk add --no-cache \
-	acl \
-	fcgi \
-	file \
-	gettext \
-	git \
-	openssh \
-	;
-
-#RUN \
-#    addgroup -S homelab --gid ${PGID} \
-#        && adduser -S homelab -G homelab --uid ${PUID}
-
-RUN set -eux; \
-	install-php-extensions \
-	intl \
-	zip \
-	apcu \
-	opcache \
-	;
-
-###> recipes ###
-###> doctrine/doctrine-bundle ###
-RUN set -eux; \
-	install-php-extensions pdo_pgsql
-###< doctrine/doctrine-bundle ###
-###< recipes ###
+FROM ghcr.io/kilip/php-api:8.2 AS app_php
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 COPY --link docker/php/conf.d/app.ini $PHP_INI_DIR/conf.d/
@@ -59,12 +21,6 @@ RUN chmod +x /usr/local/bin/docker-entrypoint
 
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
-
-# https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
-ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV PATH="${PATH}:/root/.composer/vendor/bin"
-
-COPY --from=composer/composer:2-bin --link /composer /usr/bin/composer
 
 # prevent the reinstallation of vendors at every changes in the source code
 COPY composer.* symfony.* ./
@@ -95,17 +51,7 @@ RUN rm $PHP_INI_DIR/conf.d/app.prod.ini; \
 
 COPY --link docker/php/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
 
-RUN set -eux; \
-	install-php-extensions xdebug
-
 RUN rm -f .env.local.php
-
-# Build Caddy with the Mercure and Vulcain modules
-#FROM caddy:2-builder-alpine AS app_caddy_builder
-
-#RUN xcaddy build
-#	--with github.com/dunglas/mercure/caddy \
-#	--with github.com/dunglas/vulcain/caddy
 
 # Caddy image
 FROM ghcr.io/kilip/caddy:2.6.4 AS app_caddy_builder

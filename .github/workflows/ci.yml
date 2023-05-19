@@ -9,14 +9,9 @@ on:
   workflow_dispatch: ~
 
 jobs:
-  build-api:
-    uses: kilip/homelab-monitor/.github/workflows/image-build.yml@dev
+  build-images:
+    uses: kilip/homelab-monitor/.github/workflows/build-images.yml@dev
     with:
-      image: "homelab-api"
-      target: app_php_dev
-      context: "./api"
-      pushImages: "true"
       channel: "nightly"
-      updateMetadata: "true"
+      version: "testingz"
     secrets: inherit
-
