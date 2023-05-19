@@ -31,7 +31,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Build ${{ inputs.image }} image
+    name: ${{ inputs.image }}:${{ inputs.version }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -83,6 +83,6 @@ jobs:
           push: ${{ inputs.pushImages == 'true' }}
           target: ${{ inputs.target }}
           tags: |-
-            ghcr.io/${{ github.repository_owner }}/${{ inputs.image }}
+            ghcr.io/${{ github.repository_owner }}/${{ inputs.image }}${{ inputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
