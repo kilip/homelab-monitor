@@ -80,7 +80,6 @@ jobs:
             ${{ steps.vars.outputs.chan_label_type }}.revision="${{ github.sha }}"
           context: ${{ inputs.context }}
           platforms: linux/amd64,linux/arm64
-          file: Dockerfile
           push: ${{ inputs.pushImages == 'true' }}
           target: ${{ inputs.target }}
           tags: |-

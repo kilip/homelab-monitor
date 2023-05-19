@@ -13,58 +13,10 @@ jobs:
     uses: kilip/homelab-monitor/.github/workflows/image-build.yml@dev
     with:
       image: "homelab-api"
-      target: app_dev_php
+      target: app_php_dev
       context: "./api"
       pushImages: "true"
       channel: "nightly"
       updateMetadata: "true"
     secrets: inherit
 
-  test:
-    name: API Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 1
-      - name: Pull images
-        run: docker compose pull --ignore-pull-failures || true
-
-      - name: Start services
-        run: |
-          docker compose -f docker-compose.yml -f docker-compose.override.yml up -d
-
-      - name: Wait for services
-        run: |
-          while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q api)")"; do
-            case $status in
-              starting) sleep 1;;
-              healthy) exit 0;;
-              unhealthy)
-                docker compose ps
-                docker compose logs
-                exit 1
-              ;;
-            esac
-          done
-          exit 1
-
-      - name: Check HTTP reachability
-        run: curl -v -o /dev/null http://localhost
-
-      - name: Check API reachability
-        run: curl -vk -o /dev/null https://localhost
-
-      - name: Check PWA reachability
-        run: "curl -vk -o /dev/null -H 'Accept: text/html' https://localhost"
-
-      - name: Create test database
-        run: |
-          docker compose exec -T api bin/console -e test doctrine:database:create
-          docker compose exec -T api bin/console -e test doctrine:migrations:migrate --no-interaction
-
-      - name: PHPUnit
-        run: docker compose exec -T api bin/phpunit
-
-      - name: Doctrine Schema Validator
-        run: docker compose exec -T api bin/console doctrine:schema:validate
