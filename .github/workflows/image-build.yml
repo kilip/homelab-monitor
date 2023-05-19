@@ -46,6 +46,7 @@ jobs:
         run: |-
           echo "chan_build_date=$(date --rfc-3339=seconds --utc)" >> $GITHUB_OUTPUT
           echo "chan_label_type=org.opencontainers.image" >> $GITHUB_OUTPUT
+          echo "chan_tag_version=${{ inputs.image }}:${{ inputs.version }}" >> $GITHUB_OUTPUT
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v2
@@ -82,6 +83,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: ${{ inputs.pushImages == 'true' }}
           target: ${{ inputs.target }}
-          tags: ghcr.io/${{ github.repository_owner }}/${{ inputs.image }}:${{ inputs.version }}
+          tags: ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
