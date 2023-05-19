@@ -66,9 +66,9 @@ jobs:
         id: release
         uses: docker/build-push-action@v4
         with:
-          build-args: |-
-            VERSION=${{ inputs.version }}
-            CHANNEL=${{ inputs.channel }}
+          #build-args: |-
+          #  VERSION=${{ inputs.version }}
+          #  CHANNEL=${{ inputs.channel }}
           labels: |-
             ${{ steps.vars.outputs.chan_label_type }}.created="${{ steps.vars.outputs.chan_build_date }}"
             ${{ steps.vars.outputs.chan_label_type }}.title="${{ inputs.image }} (${{ inputs.channel }})"
@@ -82,7 +82,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: ${{ inputs.pushImages == 'true' }}
           target: ${{ inputs.target }}
-          tags: |-
-            ghcr.io/${{ github.repository_owner }}/${{ inputs.image }}${{ inputs.version }}
+          tags: ghcr.io/${{ github.repository_owner }}/${{ inputs.image }}:${{ inputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
