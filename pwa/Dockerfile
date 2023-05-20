@@ -44,8 +44,6 @@ COPY --link . .
 COPY --from=deps --link /srv/app/node_modules ./node_modules
 
 RUN pnpm run build
-RUN pnpm store clean
-
 
 # Production image, copy all the files and run next
 FROM node:18-alpine AS prod
@@ -53,7 +51,6 @@ WORKDIR /srv/app
 
 ENV NODE_ENV production
 
-RUN pnpm store clean
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
