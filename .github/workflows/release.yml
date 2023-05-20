@@ -24,11 +24,10 @@ jobs:
         id: vars
         shell: bash
         run: |-
-          BRANCH=$(echo ${GITHUB_REF#refs/heads/})
-          if [[ "${BRANCH}" == 'main' ]]; then
+          if [[ "${GITHB_REF_NAME}" == 'main' ]]; then
             echo "release_version=latest" >> $GITHUB_OUTPUT
           else
-            echo "release_version=dev" >> $GITHUB_OUTPUT
+            echo "release_version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
           fi
 
   release:
