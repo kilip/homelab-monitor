@@ -2,7 +2,7 @@ group "default" {
     targets=["caddy","api","pwa"]
 }
 
-target "app" {
+target "api" {
     context = "api"
     dockerfile = "Dockerfile"
     target="app_php_dev"
