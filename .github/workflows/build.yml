@@ -1,4 +1,4 @@
-name: "Action: Build Image"
+name: "Action: Build Images"
 
 on:
   workflow_call:
