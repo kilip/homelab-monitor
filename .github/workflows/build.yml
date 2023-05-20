@@ -1,0 +1,93 @@
+name: "Action: Build Images"
+
+on:
+  workflow_call:
+    inputs:
+      pushImages:
+        required: false
+        default: 'false'
+        type: string
+      channel:
+        required: true
+        default: 'stable'
+        type: string
+      version:
+        required: false
+        default: 'testingz'
+        type: string
+
+jobs:
+  build:
+    name: ${{ matrix.image }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - image: 'homelab-api'
+          context: './api'
+          target: ${{ inputs.channel == 'stable' && 'app_php' || 'app_php_dev' }}
+        - image: 'homelab-caddy'
+          context: './api'
+          target: 'app_caddy'
+        - image: 'homelab-pwa'
+          context: './pwa'
+          target: ${{ inputs.channel == 'stable' && 'prod' || 'dev' }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+
+      - name: Setup workflow Variables
+        id: vars
+        shell: bash
+        run: |-
+          echo "chan_build_date=$(date --rfc-3339=seconds --utc)" >> $GITHUB_OUTPUT
+          echo "chan_label_type=org.opencontainers.image" >> $GITHUB_OUTPUT
+          echo "chan_tag_version=${{ matrix.image }}:${{ inputs.version }}" >> $GITHUB_OUTPUT
+
+          if [[ "${{ inputs.channel }}" == "stable" ]]; then
+            echo "chan_platform=linux/amd64,linux/arm64" >> $GITHUB_OUTPUT
+          else
+            echo "chan_platform=linux/amd64" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+  
+      - name: Setup Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Setup GHCR
+        if: ${{ inputs.pushImages == 'true' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build ${{ steps.vars.outputs.chan_platform }}
+        id: release
+        uses: docker/build-push-action@v4
+        with:
+          #build-args: |-
+          #  VERSION=${{ inputs.version }}
+          #  CHANNEL=${{ inputs.channel }}
+          labels: |-
+            ${{ steps.vars.outputs.chan_label_type }}.created="${{ steps.vars.outputs.chan_build_date }}"
+            ${{ steps.vars.outputs.chan_label_type }}.title="${{ matrix.image }} (${{ inputs.channel }})"
+            ${{ steps.vars.outputs.chan_label_type }}.version="${{ inputs.version }}"
+            ${{ steps.vars.outputs.chan_label_type }}.authors="Anthonius Munthi <me@itstoni.com>"
+            ${{ steps.vars.outputs.chan_label_type }}.url="https://github.com/kilip/homelab-monitor"
+            ${{ steps.vars.outputs.chan_label_type }}.build.url="https://github.com/kilip/homelab-monitor/actions/runs/${{ github.run_id }}"
+            ${{ steps.vars.outputs.chan_label_type }}.documentation="https://github.com/kilip/homelab-monitor/README.md"
+            ${{ steps.vars.outputs.chan_label_type }}.revision="${{ github.sha }}"
+          context: ${{ matrix.context }}
+          platforms: ${{ steps.vars.outputs.chan_platform }}
+          push: ${{ inputs.pushImages == 'true' }}
+          target: ${{ matrix.target }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_version }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -2,7 +2,8 @@ version: "3.4"
 
 # Development environment override
 services:
-  php:
+  api:
+    image: ghcr.io/kilip/homelab-api:testingz
     build:
       target: app_php_dev
     volumes:
@@ -19,6 +20,7 @@ services:
       - host.docker.internal:host-gateway
 
   pwa:
+    image: ghcr.io/kilip/homelab-pwa:testingz
     build:
       context: ./pwa
       target: dev
@@ -31,6 +33,7 @@ services:
       WATCHPACK_POLLING: "true"
 
   caddy:
+    image: ghcr.io/kilip/homelab-caddy:testingz
     volumes:
       - ./api/public:/srv/app/public:ro
       - ./api/docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
