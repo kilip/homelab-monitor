@@ -10,10 +10,11 @@ on:
 
 jobs:
   build:
-    uses: kilip/homelab-monitor/.github/workflows/build-images.yml@dev
+    uses: kilip/homelab-monitor/.github/workflows/build.yml@dev
     with:
       channel: "nightly"
       version: "testingz"
+      pushImages: "true"
     secrets: inherit
 
   tests:
