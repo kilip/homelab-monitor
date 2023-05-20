@@ -1,0 +1,65 @@
+---
+name: "Action: Testing"
+
+on:
+  pull_request: ~
+  workflow_dispatch: ~
+  workflow_call: ~
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Setup bake action
+        uses: docker/bake-action@v3
+        with:
+          push: false
+          load: true
+          files: ./docker-bake.hcl
+          set: |
+            pwa.cache-from=type=gha
+            pwa.cache-to=type=gha
+            api.cache-from=type=gha
+            api.cache-to=type=gha
+            caddy.cache-from=type=gha
+            caddy.cache-to=type=gha
+
+      - name: Pull images
+        run: docker compose pull --ignore-pull-failures || true
+      - name: Start services
+        run: docker compose up -d
+      - name: Wait for services
+        run: |
+          while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q api)")"; do
+            case $status in
+              starting) sleep 1;;
+              healthy) exit 0;;
+              unhealthy)
+                docker compose ps
+                docker compose logs
+                exit 1
+              ;;
+            esac
+          done
+          exit 1
+      - name: Check HTTP reachability
+        run: curl -v -o /dev/null http://localhost
+      - name: Check API reachability
+        run: curl -vk -o /dev/null https://localhost
+      - name: Check PWA reachability
+        run: "curl -vk -o /dev/null -H 'Accept: text/html' https://localhost"
+      - name: Create test database
+        run: |
+          docker compose exec -T api bin/console -e test doctrine:database:create
+          docker compose exec -T api bin/console -e test doctrine:migrations:migrate --no-interaction
+      - name: PHPUnit
+        run: docker compose exec -T api bin/phpunit
+      - name: Doctrine Schema Validator
+        run: docker compose exec -T api bin/console doctrine:schema:validate

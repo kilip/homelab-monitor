@@ -1,0 +1,43 @@
+---
+name: "Action: Release"
+
+on:
+  push: 
+    branches: [main]
+    tags: 
+      - 0.*
+      - 1.*
+
+jobs:
+  tests:
+    name: Testing
+    uses: kilip/homelab-monitor/.github/workflows/test.yml@main
+    
+  setup:
+    name: Setup Release
+    runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.vars.outputs.release_version }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+      - name: Configure workflow variables
+        id: vars
+        shell: bash
+        run: |-
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
+            echo "release_version=latest" >> $GITHUB_OUTPUT
+          else
+            echo "release_version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          fi
+
+  release:
+    name: Release
+    needs: [tests,setup]
+    uses: kilip/homelab-monitor/.github/workflows/build.yml@main
+    with:
+      channel: "stable"
+      version: ${{ needs.setup.outputs.release_version }}
+      pushImages: "true"
+    secrets: inherit
