@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-test-image:
-    name: Build Test Images
+    name: Build Test Image
     uses: kilip/homelab-monitor/.github/workflows/build.yml@dev
     with:
       channel: "nightly"
@@ -60,4 +60,3 @@ jobs:
         run: docker compose exec -T api bin/phpunit
       - name: Doctrine Schema Validator
         run: docker compose exec -T api bin/console doctrine:schema:validate
-
