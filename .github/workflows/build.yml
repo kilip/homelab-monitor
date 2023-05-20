@@ -24,12 +24,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - image: "homelab-api"
-          context: "./api"
-        - image: "homelab-caddy"
-          context: "./api"
-        - image: "homelab-pwa"
-          context: "./pwa"
+        - image: 'homelab-api'
+          context: './api'
+          target: ${{ inputs.channel == 'stable' && 'app_php' || 'app_php_dev' }}
+        - image: 'homelab-caddy'
+          context: './api'
+          target: 'app-caddy'
+        - image: 'homelab-pwa'
+          context: './pwa'
+          target: ${{ inputs.channel == 'stable' && 'prod' || 'dev' }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -42,22 +45,11 @@ jobs:
           echo "chan_build_date=$(date --rfc-3339=seconds --utc)" >> $GITHUB_OUTPUT
           echo "chan_label_type=org.opencontainers.image" >> $GITHUB_OUTPUT
           echo "chan_tag_version=${{ matrix.image }}:${{ inputs.version }}" >> $GITHUB_OUTPUT
-          echo "chan_target=app_caddy" >> $GITHUB_OUTPUT
 
           if [[ "${{ inputs.channel }}" == "stable" ]]; then
             echo "chan_platform=linux/amd64,linux/arm64" >> $GITHUB_OUTPUT
-            if [[ ${{ matrix.image}} == "homelab-api"]]; then
-              echo "chan_target=app_php" >> $GITHUB_OUTPUT
-            else
-              echo "chan_target=prod" >> $GITHUB_OUTPUT
-            fi
           else
             echo "chan_platform=linux/amd64" >> $GITHUB_OUTPUT
-            if [[ ${{ matrix.image}} == "homelab-api"]]; then
-              echo "chan_target=app_php_dev" >> $GITHUB_OUTPUT
-            else
-              echo "chan_target=dev" >> $GITHUB_OUTPUT
-            fi
           fi
 
       - name: Setup QEMU
@@ -94,7 +86,7 @@ jobs:
           context: ${{ matrix.context }}
           platforms: ${{ steps.vars.outputs.chan_platform }}
           push: ${{ inputs.pushImages == 'true' }}
-          target: ${{ steps.vars.outputs.chan_target }}
+          target: ${{ matrix.target }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ steps.vars.outputs.chan_tag_version }}
           cache-from: type=gha
