@@ -34,7 +34,7 @@ jobs:
   release:
     name: Release
     needs: setup
-    uses: kilip/homelab-monitor/.github/workflows/build.yml@dev
+    uses: kilip/homelab-monitor/.github/workflows/build.yml@main
     with:
       channel: "stable"
       version: ${{ needs.setup.outputs.release_version }}

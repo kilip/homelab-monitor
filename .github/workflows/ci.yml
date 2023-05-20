@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     name: Build
-    uses: kilip/homelab-monitor/.github/workflows/build.yml@dev
+    uses: kilip/homelab-monitor/.github/workflows/build.yml@main
     with:
       channel: "nightly"
       version: "testingz"
