@@ -9,7 +9,7 @@ on:
   workflow_dispatch: ~
 
 jobs:
-  build-images:
+  build:
     uses: kilip/homelab-monitor/.github/workflows/build-images.yml@dev
     with:
       channel: "nightly"
@@ -19,6 +19,7 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
+    needs: build
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -31,7 +32,7 @@ jobs:
         run: docker compose up -d
       - name: Wait for services
         run: |
-          while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q php)")"; do
+          while status="$(docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" "$(docker compose ps -q api)")"; do
             case $status in
               starting) sleep 1;;
               healthy) exit 0;;

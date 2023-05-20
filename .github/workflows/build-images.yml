@@ -12,38 +12,28 @@ on:
         type: string
 
 jobs:
-  build-api:
-    uses: kilip/homelab-monitor/.github/workflows/image-build.yml@dev
-    with:
-      image: "homelab-api"
-      target: app_php_dev
-      context: "./api"
-      pushImages: "true"
-      channel: ${{ inputs.channel }}
-      updateMetadata: "true"
-      version: ${{ inputs.version }}
-    secrets: inherit
-
-  build-caddy:
-    uses: kilip/homelab-monitor/.github/workflows/image-build.yml@dev
-    with:
-      image: "homelab-caddy"
-      target: app_caddy
-      context: "./api"
-      pushImages: "true"
-      channel: ${{ inputs.channel }}
-      updateMetadata: "true"
-      version: ${{ inputs.version }}
-    secrets: inherit
-
-  build-pwa:
-    uses: kilip/homelab-monitor/.github/workflows/image-build.yml@dev
-    with:
-      image: "homelab-pwa"
-      target: dev
-      context: "./pwa"
-      pushImages: "true"
-      channel: ${{ inputs.channel }}
-      updateMetadata: "true"
-      version: ${{ inputs.version }}
-    secrets: inherit
+  build:
+    runs-on: 'ubuntu-latest'
+    strategy:
+      matrix:
+        include:
+          - image: "homelab-api"
+            target: app_php_dev
+            context: "./api"
+          - image: "homelab-caddy"
+            target: app_caddy
+            context: "./api"
+          - image: "homelab-pwa"
+            target: dev
+            context: "./pwa"
+    
+    steps:
+      - uses: kilip/homelab-monitor/.github/workflows/image-build@dev
+        with:
+          image: ${{ matrix.image }}
+          target: ${{ matrix.target }}
+          context: ${{ matrix.context }}
+          channel: ${{ inputs.channel }}
+          version: ${{ inputs.version }}
+          pushImages: 'true'
+          updateMetadata: 'true'
