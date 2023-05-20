@@ -22,7 +22,7 @@ jobs:
         id: vars
         shell: bash
         run: |-
-          if [[ "${GITHB_REF_NAME}" == "main" ]]; then
+          if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
             echo "release_version=latest" >> $GITHUB_OUTPUT
           else
             echo "release_version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
