@@ -31,7 +31,7 @@ jobs:
             echo "release_version=dev" >> $GITHUB_OUTPUT
           fi
 
-  releases:
+  release:
     name: Release
     needs: setup
     uses: kilip/homelab-monitor/.github/workflows/build.yml@dev
