@@ -2,10 +2,14 @@
 name: "Action: Release"
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - 'Action: Testing'
     branches:
       - main
       - dev
+    types:
+      - completed
 
 jobs:
   setup:
@@ -25,11 +29,11 @@ jobs:
           if [[ "${BRANCH}" == 'main' ]]; then
             echo "release_version=latest" >> $GITHUB_OUTPUT
           else
-            echo "release_version=develop" >> $GITHUB_OUTPUT
+            echo "release_version=dev" >> $GITHUB_OUTPUT
           fi
 
-  build:
-    name: Build and Push Images
+  releases:
+    name: Release
     needs: setup
     uses: kilip/homelab-monitor/.github/workflows/build.yml@dev
     with:

@@ -1,5 +1,5 @@
 ---
-name: "Action: Testing CI"
+name: "Action: Testing"
 
 on:
   push:
@@ -9,8 +9,8 @@ on:
   workflow_dispatch: ~
 
 jobs:
-  build-test-image:
-    name: Build Test Image
+  build:
+    name: Build
     uses: kilip/homelab-monitor/.github/workflows/build.yml@dev
     with:
       channel: "nightly"
@@ -21,7 +21,7 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
-    needs: build-test-image
+    needs: build
     permissions:
       contents: 'read'
       id-token: 'write'
