@@ -47,7 +47,7 @@ jobs:
           echo "chan_tag_version=${{ matrix.image }}:${{ inputs.version }}" >> $GITHUB_OUTPUT
 
           if [[ "${{ inputs.channel }}" == "stable" ]]; then
-            echo "chan_platform=linux/amd64" >> $GITHUB_OUTPUT
+            echo "chan_platform=linux/amd64,linux-arm64" >> $GITHUB_OUTPUT
           else
             echo "chan_platform=linux/amd64" >> $GITHUB_OUTPUT
           fi
