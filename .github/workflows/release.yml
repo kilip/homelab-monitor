@@ -2,15 +2,13 @@
 name: "Action: Release"
 
 on:
-  workflow_run:
-    workflows:
-      - 'Action: Testing'
-    branches:
-      - main
-    types:
-      - completed
-
+  push: 
+    branches: [main]
 jobs:
+  tests:
+    name: Testing
+    uses: kilip/homelab-monitor/.github/workflows/test.yml@main
+    
   setup:
     name: Setup Release
     runs-on: ubuntu-latest
@@ -32,7 +30,7 @@ jobs:
 
   release:
     name: Release
-    needs: setup
+    needs: [tests,setup]
     uses: kilip/homelab-monitor/.github/workflows/build.yml@main
     with:
       channel: "stable"
