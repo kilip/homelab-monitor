@@ -4,7 +4,7 @@
 
 php:
   image:
-    repository: "ghcr.io/kilip/homelab-api"
+    repository: "ghcr.io/kilip/api-platform-php"
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: ""
@@ -21,14 +21,14 @@ php:
 
 pwa:
   image:
-    repository: "ghcr.io/kilip/homelab-pwa"
+    repository: "ghcr.io/kilip/api-platform-pwa"
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: ""
 
 caddy:
   image:
-    repository: "ghcr.io/kilip/homelab-caddy"
+    repository: "ghcr.io/kilip/api-platform-caddy"
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: ""
