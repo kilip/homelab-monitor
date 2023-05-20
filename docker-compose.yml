@@ -3,7 +3,6 @@ version: "3.4"
 services:
   api:
     container_name: homelab-api
-    image: ghcr.io/kilip/homelab-api
     build:
       context: ./api
       target: app_php
@@ -27,7 +26,6 @@ services:
 
   pwa:
     container_name: homelab-pwa
-    image: ghcr.io/kilip/homelab-pwa
     build:
       context: ./pwa
       target: prod
@@ -36,7 +34,6 @@ services:
 
   caddy:
     container_name: homelab-caddy
-    image: ghcr.io/kilip/homelab-caddy
     build:
       context: api/
       target: app_caddy
